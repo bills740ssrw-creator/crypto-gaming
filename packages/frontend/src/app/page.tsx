@@ -1,7 +1,4 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { LandingHeader } from '@/components/marketing/LandingHeader';
 import { SiteFooter } from '@/components/marketing/SiteFooter';
 import { Button } from '@/components/ui/Button';
@@ -22,10 +19,9 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 
-export default async function LandingPage() {
-  const session = await getServerSession(authOptions);
-  if (session) redirect('/dashboard');
+export const dynamic = 'force-static';
 
+export default async function LandingPage() {
   return (
     <div className="relative min-h-screen bg-background text-foreground">
       {/* Ambient background */}

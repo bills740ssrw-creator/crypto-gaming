@@ -1,15 +1,24 @@
 /** @type {import('next').NextConfig} */
+const isStaticExport = process.env.STATIC_EXPORT === '1';
+// GitHub Pages serves the site from /crypto-gaming/ — set BASE_PATH to match the repo name.
+const basePath = process.env.BASE_PATH || '';
+
 const nextConfig = {
   reactStrictMode: true,
+  ...(isStaticExport ? { output: 'export' } : {}),
+  ...(basePath ? { basePath } : {}),
+  assetPrefix: basePath || undefined,
   transpilePackages: ['@crypto-gaming/shared'],
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
   images: {
+    unoptimized: isStaticExport,
     domains: ['localhost', 'api.cryptogaming.com'],
     formats: ['image/avif', 'image/webp'],
   },
   async rewrites() {
+    if (isStaticExport) return [];
     return [
       {
         source: '/api/backend/:path*',
