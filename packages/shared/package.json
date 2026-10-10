@@ -1,0 +1,33 @@
+{
+  "name": "@crypto-gaming/shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "test": "node --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "bignumber.js": "^9.1.2",
+    "zod": "catalog:",
+    "jsonwebtoken": "catalog:",
+    "bcryptjs": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "@types/node": "catalog:",
+    "@types/jsonwebtoken": "catalog:",
+    "@types/bcryptjs": "catalog:",
+    "eslint": "catalog:",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "prettier": "catalog:",
+    "jest": "catalog:",
+    "ts-jest": "catalog:",
+    "@types/jest": "catalog:"
+  }
+}

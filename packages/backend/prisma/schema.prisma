@@ -1,0 +1,301 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CurrencyType {
+  GOLD_COINS
+  SWEEPS_COINS
+  CRYPTO_BTC
+  CRYPTO_ETH
+  CRYPTO_USDT
+  CRYPTO_USDC
+  CRYPTO_LTC
+  CRYPTO_DOGE
+  CRYPTO_SOL
+}
+
+enum RegionType {
+  US
+  GLOBAL
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  WAGER
+  WIN
+  BONUS
+  REFUND
+  TRANSFER_IN
+  TRANSFER_OUT
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  CONFIRMED
+  COMPLETED
+  FAILED
+  CANCELLED
+  REJECTED
+}
+
+enum GameStatus {
+  WAITING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum GameType {
+  SLOTS
+  BLACKJACK
+  ROULETTE
+  POKER
+  BACCARAT
+  DICE
+  CRASH
+  PLINKO
+  MINES
+  KENO
+  TIC_TAC_TOE
+  ROCK_PAPER_SCISSORS
+  PATH_ELIMINATION
+}
+
+enum WalletType {
+  HOT
+  COLD
+  DEPOSIT
+  WITHDRAWAL
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  username      String   @unique
+  passwordHash  String
+  region        RegionType @default(GLOBAL)
+  kycVerified   Boolean  @default(false)
+  kycLevel      Int      @default(0)
+  isActive      Boolean  @default(true)
+  isAdmin       Boolean  @default(false)
+  referralCode  String?  @unique
+  referredBy    String?  
+  lastLoginAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  wallets          CryptoWallet[]
+  transactions     Transaction[]
+  gameHistory      GameHistory[]
+  gameSessions     GameSession[]
+  refreshTokens    RefreshToken[]
+  depositAddresses DepositAddress[]
+
+  @@index([email])
+  @@index([username])
+  @@index([referralCode])
+  @@index([region])
+}
+
+model CryptoWallet {
+  id              String      @id @default(uuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currency        CurrencyType
+  address         String      @unique
+  derivationPath  String?
+  walletType      WalletType  @default(HOT)
+  isActive        Boolean     @default(true)
+  balance         Decimal     @default(0) @db.Decimal(38, 18)
+  pendingBalance  Decimal     @default(0) @db.Decimal(38, 18)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  transactions Transaction[]
+
+  @@unique([userId, currency])
+  @@index([userId])
+  @@index([currency])
+  @@index([address])
+}
+
+model DepositAddress {
+  id        String       @id @default(uuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chain     String       // "SOLANA" | "EVM"
+  currency  CurrencyType
+  address   String       @unique
+  hdIndex   Int?
+
+  // Indexer cursors
+  lastScannedSignature String?   // Solana: last processed signature
+  lastScannedBlock     Int?      // EVM: last block scanned for ERC-20 logs
+  lastNativeBalance    BigInt?   // EVM: last observed native-coin balance (wei)
+
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([userId, chain, currency])
+  @@index([chain])
+  @@index([userId])
+}
+
+model Transaction {
+  id                    String           @id @default(uuid())
+  userId                String
+  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walletId              String?
+  wallet                CryptoWallet?    @relation(fields: [walletId], references: [id], onDelete: SetNull)
+  type                  TransactionType
+  status                TransactionStatus @default(PENDING)
+  currency              CurrencyType
+  amount                Decimal          @db.Decimal(38, 18)
+  fee                   Decimal          @default(0) @db.Decimal(38, 18)
+  netAmount             Decimal          @db.Decimal(38, 18)
+  description           String?
+  referenceId           String?          @unique
+  blockHash             String?
+  blockNumber           BigInt?
+  txHash                String?          @unique
+  confirmations         Int              @default(0)
+  requiredConfirmations Int              @default(1)
+  metadata              Json             @default("{}")
+  processedAt           DateTime?
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([walletId])
+  @@index([type])
+  @@index([status])
+  @@index([currency])
+  @@index([referenceId])
+  @@index([txHash])
+  @@index([createdAt])
+  @@index([userId, status])
+  @@index([userId, type])
+}
+
+model Game {
+  id              String   @id @default(uuid())
+  name            String
+  type            GameType
+  provider        String
+  minBet          Decimal  @db.Decimal(38, 18)
+  maxBet          Decimal  @db.Decimal(38, 18)
+  rtp             Float
+  volatility      String
+  isActive        Boolean  @default(true)
+  isProvablyFair  Boolean  @default(false)
+  config          Json     @default("{}")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  gameHistory GameHistory[]
+  gameSessions GameSession[]
+
+  @@index([type])
+  @@index([isActive])
+  @@index([provider])
+}
+
+model GameHistory {
+  id          String     @id @default(uuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameId      String
+  game        Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  sessionId   String
+  betAmount   Decimal    @db.Decimal(38, 18)
+  currency    CurrencyType
+  winAmount   Decimal    @default(0) @db.Decimal(38, 18)
+  result      Json
+  seed        String?
+  clientSeed  String?
+  nonce       Int        @default(0)
+  status      GameStatus @default(COMPLETED)
+  startedAt   DateTime
+  endedAt     DateTime?
+  createdAt   DateTime   @default(now())
+
+  @@index([userId])
+  @@index([gameId])
+  @@index([sessionId])
+  @@index([currency])
+  @@index([status])
+  @@index([startedAt])
+  @@index([userId, startedAt])
+}
+
+model GameSession {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameId        String
+  game          Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  currency      CurrencyType
+  initialBalance Decimal @db.Decimal(38, 18)
+  currentBalance Decimal @db.Decimal(38, 18)
+  totalWagered  Decimal  @default(0) @db.Decimal(38, 18)
+  totalWon      Decimal  @default(0) @db.Decimal(38, 18)
+  betsCount     Int      @default(0)
+  winsCount     Int      @default(0)
+  isActive      Boolean  @default(true)
+  startedAt     DateTime @default(now())
+  endedAt       DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([gameId])
+  @@index([currency])
+  @@index([isActive])
+  @@index([userId, isActive])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+model SystemConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  oldData   Json?
+  newData   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity])
+  @@index([entityId])
+  @@index([createdAt])
+}

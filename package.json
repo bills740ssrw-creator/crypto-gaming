@@ -1,0 +1,32 @@
+{
+  "name": "crypto-gaming-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "npm run dev --workspace=packages/frontend",
+    "dev:backend": "npm run dev --workspace=packages/backend",
+    "build": "npm run build --workspaces",
+    "build:frontend": "npm run build --workspace=packages/frontend",
+    "build:backend": "npm run build --workspace=packages/backend",
+    "db:generate": "npm run db:generate --workspace=packages/backend",
+    "db:push": "npm run db:push --workspace=packages/backend",
+    "db:migrate": "npm run db:migrate --workspace=packages/backend",
+    "db:studio": "npm run db:studio --workspace=packages/backend",
+    "lint": "pnpm -r lint",
+    "format": "pnpm -r format",
+    "test": "pnpm -r test",
+    "clean": "rm -rf node_modules packages/*/node_modules packages/*/.next packages/*/dist"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}

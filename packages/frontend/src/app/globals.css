@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Dark casino palette is the default; `.light` opts into the light theme. */
+  :root,
+  .dark {
+    --background: 215 28% 7%;
+    --foreground: 214 32% 91%;
+
+    --surface: 215 28% 9%;
+    --surface-raised: 215 27% 12%;
+    --surface-overlay: 215 26% 15%;
+
+    --card: 215 27% 11%;
+    --card-foreground: 214 32% 91%;
+
+    --popover: 215 27% 10%;
+    --popover-foreground: 214 32% 91%;
+
+    --primary: 160 84% 39%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 25% 16%;
+    --secondary-foreground: 214 32% 91%;
+
+    --muted: 215 25% 15%;
+    --muted-foreground: 215 18% 62%;
+
+    --accent: 215 25% 17%;
+    --accent-foreground: 214 32% 91%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 24% 17%;
+    --input: 215 24% 19%;
+    --ring: 160 84% 39%;
+
+    --gold-500: 38 92% 50%;
+
+    --radius: 0.625rem;
+
+    color-scheme: dark;
+  }
+
+  .light {
+    --background: 214 32% 97%;
+    --foreground: 215 28% 10%;
+
+    --surface: 0 0% 100%;
+    --surface-raised: 214 32% 98%;
+    --surface-overlay: 214 32% 96%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 28% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 28% 10%;
+
+    --primary: 160 84% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 214 32% 94%;
+    --secondary-foreground: 215 28% 14%;
+
+    --muted: 214 32% 94%;
+    --muted-foreground: 215 16% 42%;
+
+    --accent: 214 32% 93%;
+    --accent-foreground: 215 28% 14%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 88%;
+    --input: 214 32% 86%;
+    --ring: 160 84% 35%;
+
+    --gold-500: 38 92% 45%;
+
+    color-scheme: light;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+  ::selection {
+    @apply bg-primary/30 text-foreground;
+  }
+  /* Thin, dark-theme-friendly scrollbars */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--surface));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 9999px;
+    border: 2px solid hsl(var(--surface));
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Primary call-to-action fill used across marketing + app */
+  .btn-primary-fill {
+    @apply bg-primary text-primary-foreground shadow-glow-primary hover:brightness-110 active:brightness-95;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-300 via-primary to-gold-400 bg-clip-text text-transparent;
+  }
+
+  .glass {
+    @apply bg-surface/70 backdrop-blur-xl;
+  }
+
+  .noise-overlay {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+  }
+
+  .animate-once {
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+  }
+}

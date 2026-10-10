@@ -1,0 +1,80 @@
+# --- Monorepo project ---
+node_modules/
+.pnpm-store/
+.next/
+out/
+build/
+dist/
+
+# Env — never commit real secrets
+.env
+.env.local
+.env.*.local
+
+# Prisma build output
+packages/backend/prisma/*.db
+
+# Debug / scratch
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+_debug-*
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Logs
+*.log
+
+# --- Home-directory noise (repo rooted at user profile) ---
+# Never track personal/browser/agent scaffolding at the profile root
+.agent-browser/
+.agent-control/
+.agent-work/
+.opencode/
+.claude/
+.config/
+.Contacts/
+.Cookies/
+Desktop/
+Documents/
+Downloads/
+Favorites/
+Links/
+Local Settings/
+Music/
+My Documents/
+NetHood/
+Pictures/
+PrintHood/
+Recent/
+Saved Games/
+Searches/
+SendTo/
+Start Menu/
+Templates/
+Videos/
+AppData/
+Application Data/
+Cookies/
+Local Settings/
+NetHood/
+PrintHood/
+Remote Desktop/
+$Recycle.Bin/
+System Volume Information/
+OneDrive/
+Outlook Files/
+*
+!packages/
+!README.md
+!.gitignore
+!pnpm-workspace.yaml
+!package.json
+!tsconfig.json
+!*.md
